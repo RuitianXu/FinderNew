@@ -10,10 +10,10 @@ final class HostModel: ObservableObject {
     @Published var extensionStatus = "未知"
 
     private static let log = Logger(subsystem: "com.xuruitian.FinderNew", category: "host")
-    private static let knownTemplateIDs: Set<String> = Set(Template.builtin().map { $0.id.uuidString })
 
     /// Handle findernew://create?template=<uuid>&dir=<dirURL>
-    /// Security: fixed action, template UUID whitelist, strict directory validation, no shell, no arbitrary commands.
+    /// Security: fixed action, template UUID must exist in the manifest, strict directory
+    /// validation, exclusive create; no shell, no arbitrary commands.
     func handleCreateRequest(_ url: URL) {
         lastError = nil
         guard url.scheme == "findernew", url.host == "create" else {
@@ -23,21 +23,19 @@ final class HostModel: ObservableObject {
         guard let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
               let templateID = items.first(where: { $0.name == "template" })?.value,
               let dirString = items.first(where: { $0.name == "dir" })?.value,
-              let dirURL = URL(string: dirString) else {
-            lastError = "请求参数缺失"
+              let dirURL = URL(string: dirString),
+              let templateUUID = UUID(uuidString: templateID) else {
+            lastError = "请求参数缺失或非法"
             return
         }
 
-        // Whitelist: only known builtin template UUIDs (Phase 1: persisted template store).
-        guard Self.knownTemplateIDs.contains(templateID),
-              let template = Template.builtin().first(where: { $0.id.uuidString == templateID }) else {
+        guard let template = TemplateRepository.shared.template(id: templateUUID) else {
             lastError = "模板不存在或已禁用"
-            Self.log.error("rejected unknown template id")
+            Self.log.error("rejected unknown template id \(templateID, privacy: .public)")
             return
         }
 
-        // Strict path validation: must be an existing, resolvable, non-root-of-nothing directory;
-        // standardizing removes ".." tricks.
+        // Strict path validation: existing, resolvable, real directory; standardize kills "..".
         let standardized = dirURL.standardizedFileURL
         var isDir: ObjCBool = false
         guard standardized.isFileURL,
@@ -50,7 +48,18 @@ final class HostModel: ObservableObject {
         }
 
         do {
-            let created = try FileCreator.createTextFile(template: template, in: standardized)
+            let created: URL
+            switch template.kind {
+            case .text:
+                let content = TemplateRepository.shared.textContent(for: template)
+                created = try FileCreator.createTextFile(template: template, content: content, in: standardized)
+            case .file:
+                guard let source = TemplateRepository.shared.fileTemplateURL(for: template) else {
+                    throw FileCreator.CreateError.fileTemplateMissing
+                }
+                created = try FileCreator.createFileFromTemplate(
+                    template: template, templateFileURL: source, in: standardized)
+            }
             NSWorkspace.shared.activateFileViewerSelecting([created])
             lastAction = "已创建 \(created.lastPathComponent)（\(standardized.path)）"
             Self.log.info("created \(created.lastPathComponent, privacy: .public)")
