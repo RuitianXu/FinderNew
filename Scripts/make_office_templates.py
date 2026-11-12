@@ -40,13 +40,34 @@ RELS_WORD = XMLDECL + '''<Relationships xmlns="http://schemas.openxmlformats.org
 
 DOC_XML = XMLDECL + '''<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
 <w:body>
-<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t></w:t></w:r></w:p>
+<w:p><w:r><w:t></w:t></w:r></w:p>
 <w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="851" w:footer="992" w:gutter="0"/></w:sectPr>
 </w:body>
 </w:document>'''
 
+# Normal style: Chinese 宋体 / Latin Times New Roman, 小四 (12pt), 1.5x line spacing,
+# no space before/after paragraphs.
 STYLES_XML = XMLDECL + '''<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+<w:name w:val="Normal"/><w:qFormat/>
+<w:pPr>
+<w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto"/>
+</w:pPr>
+<w:rPr>
+<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="宋体" w:cs="Times New Roman"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/>
+</w:rPr>
+</w:style>
+<w:docDefaults>
+<w:rPrDefault><w:rPr>
+<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="宋体" w:cs="Times New Roman"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/>
+<w:lang w:val="en-US" w:eastAsia="zh-CN"/>
+</w:rPr></w:rPrDefault>
+<w:pPrDefault><w:pPr>
+<w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto"/>
+</w:pPr></w:pPrDefault>
+</w:docDefaults>
 </w:styles>'''
 
 CORE_XML = XMLDECL + '''<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -143,7 +164,12 @@ MASTER1_XML = XMLDECL + f'''<p:sldMaster xmlns:p="{P}" xmlns:a="{A}">
 </p:sldMaster>'''
 
 # ---------------------------------------------------------------- write
-write_zip(OUT / "blank.docx", {
+# Builtin files are named by template UUID so TemplateRepository.fileTemplateURL finds them.
+DOCX_ID = "00000000-0000-0000-0000-00000000d0c1"
+XLSX_ID = "00000000-0000-0000-0000-00000000d1c2"
+PPTX_ID = "00000000-0000-0000-0000-00000000d2c3"
+
+write_zip(OUT / f"{DOCX_ID}.docx", {
     "[Content_Types].xml": CT_TYPES,
     "_rels/.rels": RELS_ROOT,
     "word/document.xml": DOC_XML,
@@ -153,7 +179,7 @@ write_zip(OUT / "blank.docx", {
     "docProps/app.xml": APP_XML,
 })
 
-write_zip(OUT / "blank.xlsx", {
+write_zip(OUT / f"{XLSX_ID}.xlsx", {
     "[Content_Types].xml": XLSX_CT,
     "_rels/.rels": RELS_ROOT,
     "xl/workbook.xml": WORKBOOK_XML,
@@ -164,7 +190,7 @@ write_zip(OUT / "blank.xlsx", {
     "docProps/app.xml": APP_XML,
 })
 
-write_zip(OUT / "blank.pptx", {
+write_zip(OUT / f"{PPTX_ID}.pptx", {
     "[Content_Types].xml": PPTX_CT,
     "_rels/.rels": RELS_ROOT,
     "ppt/presentation.xml": PRESENTATION_XML,

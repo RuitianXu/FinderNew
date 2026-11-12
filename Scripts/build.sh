@@ -26,7 +26,7 @@ echo "==> Generating template manifest"
 (cd "$CORE" && swift run -q gen-manifest "$APP/Contents/Resources/templates.json")
 
 echo "==> Copying bundled Office templates"
-cp "$ROOT/Resources/OfficeTemplates/blank.docx" "$ROOT/Resources/OfficeTemplates/blank.xlsx" "$ROOT/Resources/OfficeTemplates/blank.pptx" \
+cp "$ROOT/Resources/OfficeTemplates/"*.docx "$ROOT/Resources/OfficeTemplates/"*.xlsx "$ROOT/Resources/OfficeTemplates/"*.pptx \
    "$APP/Contents/Resources/OfficeTemplates/"
 
 echo "==> Building Finder Sync extension"
