@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Build output
+build/
+*.o
+
+# Xcode (future migration)
+xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Swift Package Manager
+.build/
+Packages/
+
+# Secrets / credentials — never commit
+*.p12
+*.mobileprovision
+*.cer
+notary-*
+.env
