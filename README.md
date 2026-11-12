@@ -1,38 +1,47 @@
 # FinderNew
 
-macOS 上的 Finder「新建文件」工具 —— 在 Finder 右键菜单中提供 Windows 风格的「新建」入口，支持 txt / md / py 等文本模板与自定义完整文件模板。
+在 macOS Finder 的右键菜单里新建文件，就像 Windows 那样。
 
-> 🚧 开发中：当前为 Phase 0 Spike（右键菜单 → 创建文本文件已验证可用），模板管理与 Office 模板在 Phase 1 实现。
+右键空白处即可新建 txt、Markdown、Python、Word、Excel、PowerPoint 等常用文件，还能一键复制文件或文件夹路径。开机自动在后台运行，随叫随到。
 
 ## 功能
 
-- Finder 右键 + 工具栏双入口，新建常用格式文件
-- 内置合法空白 Office 文档模板（docx / pptx / xlsx）
-- 自定义模板：文本初始内容 或 任意现有文件作为模板
-- 模板启用/停用、排序，中英文界面
-- 独占创建（`O_EXCL` 语义），不覆盖已有文件
+- **右键新建文件**：在文件夹空白处右键，选择格式即可创建；右键文件或文件夹时，会在对应目录里创建
+- **新建 Office 文档**：内置空白的 Word / Excel / PowerPoint 模板，是真正能打开的文档，不是改扩展名的空文件。其中 Word 默认样式为中文宋体、英文 Times New Roman、字号小四、1.5 倍行距、段前段后为 0
+- **复制路径**：右键空白处复制文件夹路径；右键文件复制文件路径（多选时每行一个）
+- **后台常驻**：安装后自动注册为登录项，无 Dock 图标，开机即用
+- **绝不覆盖**：新建时如果文件已存在，会自动命名为「未命名 2」「未命名 3」，不会覆盖你的任何文件
 
 ## 系统要求
 
-- macOS 13 Ventura 或更高版本
-- Apple Silicon（Intel 支持待验证）
+- macOS 13 或更高版本
+- Apple Silicon（M 系列）Mac
 
 ## 安装
 
+从 [Releases](https://github.com/RuitianXu/FinderNew/releases) 下载最新的 zip 并解压：
+
+1. 把 `FinderNew.app` 拖入「应用程序」文件夹
+2. 第一次打开时右键点击 App，选择「打开」（应用未经过公证，直接双击会被拦）
+3. 到「系统设置 → 通用 → 登录项与扩展 → Finder 扩展」中启用 FinderNew
+
+之后在 Finder 里右键就能用了。
+
+### 从源码构建
+
 ```bash
-git clone https://github.com/<your-account>/FinderNew.git
+git clone https://github.com/RuitianXu/FinderNew.git
 cd FinderNew
 Scripts/build.sh
 cp -R build/FinderNew.app /Applications/
-open /Applications/FinderNew.app
 ```
 
-首次使用需在「系统设置 → 通用 → 登录项与扩展 → Finder 扩展」中启用 **FinderNew**。
+构建只需要 Xcode Command Line Tools，不需要完整版 Xcode。
 
 ## 已知限制
 
-- iCloud Drive / File Provider 云同步目录可能不显示第三方右键菜单
-- 首次打开需右键 → 打开
+- iCloud Drive 等云同步目录里，macOS 可能不显示第三方右键菜单，这是系统限制
+- 应用使用 ad-hoc 签名，未做公证，首次打开需要右键 → 打开
 
 ## 许可证
 
