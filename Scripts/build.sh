@@ -29,6 +29,9 @@ echo "==> Copying bundled Office templates"
 cp "$ROOT/Resources/OfficeTemplates/"*.docx "$ROOT/Resources/OfficeTemplates/"*.xlsx "$ROOT/Resources/OfficeTemplates/"*.pptx \
    "$APP/Contents/Resources/OfficeTemplates/"
 
+echo "==> Copying app icon"
+cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+
 echo "==> Building Finder Sync extension"
 swiftc "${SWIFT_FLAGS[@]}" -parse-as-library \
   -module-name FinderNewExtension \
